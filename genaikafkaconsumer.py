@@ -26,9 +26,7 @@ topic = 'support-ticket-actions'
 
 def process_with_ai(message):
     try:
-        #response = client.completions.create(engine="text-davinci-003",
-        #prompt=message,
-        #max_tokens=50)
+        # generate Actions via AI
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
                 messages=[ { "role": "system","content": "Summarize this customer feedback and suggest an actionable insight"},
@@ -38,7 +36,6 @@ def process_with_ai(message):
                 max_tokens=64,
                 top_p=1
         )
-        #return response.choices[0].text.strip()
         return response.choices[0].message.content
     except Exception as e:
         print(f"Error processing message with AI: {e}")

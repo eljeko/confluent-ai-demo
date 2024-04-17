@@ -1,7 +1,7 @@
 # Generic and simple generative AI sample with Confluent the `genAIKafkaConsumer` APP
 
-This is a pretty nice and simple demo written in Python.
-The use case is also pretty nice. We run a [Zendesk Sourcer Connector](https://docs.confluent.io/kafka-connectors/zendesk/current/overview.html) and ingest support P1 tickets into Confluent Platform cluster. We route this ticket to chatgpt and ask for formulate actions out of this ticket and route it directly to the P1 Dashboard and Support Engineers.
+This is a pretty nice and simple demo written in Python. I am using [LLM Langchain Python Lib](https://python.langchain.com/docs/modules/model_io/llms/).
+The use case is also pretty nice. I run a [Zendesk Sourcer Connector](https://docs.confluent.io/kafka-connectors/zendesk/current/overview.html) and ingest P1 support tickets into Confluent Platform cluster. I route this ticket to chatgpt API and ask for formulate actions out of this ticket and route it directly to the P1 Dashboard and Support Engineers.
 
 The prompt is very easy and straight forward: `Summarize this customer feedback and suggest an actionable insight`
 ![Demo architecture.](img/ConfluentGenAIKafkaConsumer.png)
@@ -57,3 +57,4 @@ just run this script. This will drop topics, stop local CP and destroy lokal CP:
 ./02_stop_genAIKafkaConsumerDemo.sh
 ````
 
+END

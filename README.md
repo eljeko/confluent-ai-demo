@@ -31,7 +31,7 @@ pre-reqs:
 copy the OpenAI Key to `env-vars` file:
 
 ```Bash
-at > $PWD/env-vars <<EOF
+cat > $PWD/env-vars <<EOF
 export OPENAI_API_KEY=YOUR openAI Key
 EOF
 ```

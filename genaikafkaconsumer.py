@@ -1,10 +1,11 @@
-from kafka import KafkaConsumer
-from kafka import KafkaProducer
+from kafka import KafkaConsumer, KafkaProducer
 from openai import OpenAI
 import json
 import os
 
 OPENAIKEY = os.environ["OPENAI_API_KEY"]
+if not OPENAIKEY:
+    raise ValueError("OPENAI_API_KEY environment variable is not set")
 client = OpenAI(api_key=OPENAIKEY)
 
 # Kafka consumer setup
@@ -12,7 +13,7 @@ consumer = KafkaConsumer(
     'support-tickets',
     bootstrap_servers=['localhost:9092'],
     auto_offset_reset='latest',
-    group_id='cmgroup'
+    group_id='group-support-tickets'
 )
 
 # Kafka Producer setup
@@ -41,22 +42,29 @@ def process_with_ai(message):
         print(f"Error processing message with AI: {e}")
         return None
 
-for message in consumer:
-    msg_value = message.value.decode('utf-8')
-    print(f"**** MESSAGE FROM ZENDESK ****")
-    print(f"Received message: {msg_value}")
-    ai_output = process_with_ai(msg_value)
-    if ai_output:
-        print(f"**** AI OUTPUT ****")
-        print(f"AI processed output: {ai_output}")
-        # Send a message
-        message = ai_output
-        producer.send(topic, message)
-        # Wait for all messages to be sent
-        producer.flush()
-        print("Message sent successfully to topic support-ticket-summaries!")
-    else:
-        print("Failed to process message with AI.")
-# Optionally, close the producer
-producer.close()
-    
+def main():
+    try:
+        for message in consumer:
+            msg_value = message.value.decode('utf-8')
+            print(f"**** MESSAGE FROM ZENDESK ****")
+            print(f"Received message: {msg_value}")
+            ai_output = process_with_ai(msg_value)
+        
+            if ai_output:
+                print(f"**** AI OUTPUT ****")
+                print(f"AI processed output: {ai_output}")
+                
+                # Produce to support-ticket-actions
+                producer.send(topic, ai_output)
+                producer.flush()
+                
+                print("Message sent successfully to topic support-ticket-summaries!")
+            else:
+                print("Failed to process message with AI.")
+    except Exception as e:
+         print(f"Error occurred: {e}")
+    finally:
+        producer.close()
+        
+if __name__ == "__main__":
+    main()  

@@ -63,6 +63,6 @@ Just run the next script. This will drop topics, stop local CP and destroy local
 ```bash
 ./02_stop_genAIKafkaConsumerDemo.sh
 ```
-The terminal sessions did stopped (CTRL+c) manually.
+The terminal sessions need to be stopped (CTRL+c) manually.
 
 END

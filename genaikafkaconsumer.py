@@ -1,26 +1,58 @@
+from cgi import print_arguments
 from kafka import KafkaConsumer, KafkaProducer
 from openai import OpenAI
 import json
 import os
+import sys
 
 OPENAIKEY = os.environ["OPENAI_API_KEY"]
 if not OPENAIKEY:
     raise ValueError("OPENAI_API_KEY environment variable is not set")
 client = OpenAI(api_key=OPENAIKEY)
 
-# Kafka consumer setup
-consumer = KafkaConsumer(
-    'support-tickets',
-    bootstrap_servers=['localhost:9092'],
-    auto_offset_reset='latest',
-    group_id='group-support-tickets'
-)
+# Arguments passed to the script
+totalargs = len(sys.argv)
+#print(sys.argv)
+deployment = sys.argv[1]
+bootstrap = sys.argv[2]
+if totalargs == 5:
+    apikey = sys.argv[3]
+    apisecret = sys.argv[4]
 
-# Kafka Producer setup
-producer = KafkaProducer(
-    bootstrap_servers=['localhost:9092'],  # List of Kafka broker addresses
+if totalargs == 3:
+    # Kafka consumer setup for CP
+    consumer = KafkaConsumer(
+        'support-tickets',
+        bootstrap_servers=bootstrap,
+        auto_offset_reset='latest',
+        group_id='group-support-tickets'
+    )
+    # Producer for CP
+    producer = KafkaProducer(
+    bootstrap_servers=bootstrap,  # List of Kafka broker addresses
     value_serializer=lambda v: json.dumps(v).encode('utf-8')  # Serializer for the message data
-)
+    )
+
+elif totalargs == 5:
+    consumer = KafkaConsumer(
+        'support-tickets',
+        bootstrap_servers=bootstrap,
+        security_protocol='SASL_SSL',
+        sasl_mechanism='PLAIN',
+        sasl_plain_username=apikey,
+        sasl_plain_password=apisecret,
+        auto_offset_reset='latest',
+        group_id='group-support-tickets'
+    )
+    # Producer for CCloud
+    producer = KafkaProducer(
+        bootstrap_servers=bootstrap,  # List of Kafka broker addresses
+        security_protocol='SASL_SSL',
+        sasl_mechanism='PLAIN',
+        sasl_plain_username=apikey,
+        sasl_plain_password=apisecret,
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')  # Serializer for the message data
+    )
 
 # Define the topic name
 topic = 'support-ticket-actions'

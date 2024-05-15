@@ -25,7 +25,9 @@ prerequisite:
 
 * confluent cli installed
 * running Java at least 1.8 (till CP 8.0 JDK 1.8 is supported) or newer
-* Confluent Platform 7.6. or newer installed
+* If you would like run with Confluent Platform
+    * Confluent Platform 7.6. or newer installed
+* If you would like to run with Confluent Cloud you need a working Confluent Cloud account 
 * Python3 with following packages installed: kafka and openai
 * iterm2 installed (if not installed, run the scripts manually, check script `01_terminals.scpt`)
 * I run on INTEL MacOS
@@ -36,14 +38,22 @@ copy the OpenAI Key to `env-vars` file:
 ```Bash
 at > $PWD/env-vars <<EOF
 export OPENAI_API_KEY=YOUR openAI Key
+export ENVIRONMENTNAME=cmgenai
 EOF
 ```
 
-Start the demo by executing:
+Start the demo for Confluent Platform setup by executing:
 
 ```bash
-./00_start_genAIKafkaConsumerDemo.sh
+./00_start_genAIKafkaConsumerDemo.sh CP
 ```
+
+Start the demo for Confluent Cloud setup by executing:
+
+```bash
+./00_start_genAIKafkaConsumerDemo.sh CC
+```
+
 
 This will open iterm. You can now play around and produce some messages and see what openAI will generate.
 ![Demo .](img/demo.png)

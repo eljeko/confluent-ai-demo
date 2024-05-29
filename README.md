@@ -84,5 +84,6 @@ Solution: Uninstall and install it again.
 ```bash
 pip3 uninstall openai
 pip3 install openai
+```
 
 END

@@ -23,8 +23,8 @@ As you will see this is really pretty easy and brings much value.
 
 prerequisite:
 
-* confluent cli installed
-* running Java at least 1.8 (till CP 8.0 JDK 1.8 is supported) or newer
+* confluent cli must be installed
+* running Java at least version 1.8 (till CP 8.0 JDK 1.8 is supported) or newer
 * If you would like run with Confluent Platform
     * Confluent Platform 7.6. or newer installed
 * If you would like to run with Confluent Cloud you need a working Confluent Cloud account 
@@ -74,5 +74,15 @@ Just run the next script. This will drop topics, stop local CP and destroy local
 ./02_stop_genAIKafkaConsumerDemo.sh
 ```
 The terminal sessions need to be stopped (CTRL+c) manually.
+
+# Troubleshooting
+
+## openAI could not imported
+
+Solution: Uninstall and install it again.
+
+```bash
+pip3 uninstall openai
+pip3 install openai
 
 END

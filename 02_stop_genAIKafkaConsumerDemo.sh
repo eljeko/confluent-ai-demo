@@ -31,7 +31,7 @@ if [[ "$DEPLOYMENT" == "CC" ]] ; then
     rm apikey
     rm envid
     rm clusterid
-    
+    rm poolid
 fi
 rm bootstrap
 rm basedir

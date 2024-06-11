@@ -85,7 +85,7 @@ With Flink SQL AI we will have a four session terminal:
 
 ## Stop Demo and Delete
 
-First exit all open session in iterm.
+First exit all open sessions in iterm.
 Just run the next script. This will drop topics, stop local CP and destroy local CP:
 
 ```bash

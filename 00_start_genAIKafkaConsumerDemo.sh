@@ -69,6 +69,23 @@ elif [[ "$1" == "CC" ]] ; then
     confluent api-key create --description "API Key for genai Demo" --resource $CLUSTERID --environment $ENVID -o yaml > apikey
     export APIKEY=$(awk '/api_key:/{print $NF}' apikey)
     export APISECRET=$(awk '/api_secret:/{print $NF}' apikey)
+    # create flink pool
+    confluent flink compute-pool create "cmgenaiflinkpool" --cloud gcp --region europe-west1 --max-cfu 5 --environment $ENVID -o yaml > poolid
+    export FPOOLID=$(awk '/id:/{print $NF}' poolid)
+    echo ""
+    echo "Wait 60 seconds till resources are up and running..."
+    sleep 60
+    echo ""
+    echo "Install Flink SQL Table..."
+    # Install statements. Table, Model
+    confluent flink statement create cmtablesupportticketsflink --sql "create table support_tickets_flink (ID INT, TEXT STRING) WITH ('kafka.partitions'='1');" --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
+    confluent flink statement describe cmtablesupportticketsflink --cloud gcp --region  europe-west1 --environment $ENVID
+    confluent flink statement create cmtablesupportticketsflink-insert1 --sql "INSERT INTO support_tickets_flink SELECT 1 id, 'Really enjoyed the new update on the app! But I found it a bit difficult to navigate to my profile settings. Maybe it could be made more intuitive?' text;" --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
+    confluent flink statement describe cmtablesupportticketsflink-insert1 --cloud gcp --region  europe-west1 --environment $ENVID
+    confluent flink statement create cmtablesupportticketsflink-insert2 --sql "INSERT INTO support_tickets_flink SELECT 2 id, 'I really like the Meet the Expert sessions around Confluent new features and best practices. We are facing problems around Replicator and to replicate data between cluster with RBAC and mtls setup. Can you advice?' text;" --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
+    confluent flink statement describe cmtablesupportticketsflink-insert2 --cloud gcp --region  europe-west1 --environment $ENVID
+    confluent flink statement create cmtablesupportticketsflink-insert3 --sql "INSERT INTO support_tickets_flink SELECT 3 id, 'The Confluent Software does not work. I try to create a Cloud Bridge with cluster linking from my on-prem cluster to confluent cloud cluster, and this not working.' text;" --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
+    confluent flink statement describe cmtablesupportticketsflink-insert3 --cloud gcp --region  europe-west1 --environment $ENVID
     # Create Client Config for Kafka Tools
     echo "# Required connection configs for Kafka producer, consumer, and admin
     bootstrap.servers=$BOOTSTRAP
@@ -89,7 +106,19 @@ echo ""
 echo "Start Clients from demo...."
 open -a iterm
 sleep 10
-osascript 01_terminals.scpt $BASEDIR
+
+if [[ "$1" == "CC" ]] ; then
+    osascript 01.1_terminals.scpt $BASEDIR
+    echo "run: confluent flink shell --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID"
+    echo "Execute:"
+    echo "> select * from support_tickets_flink limit 3;"
+    echo "> SET 'sql.secrets.my_api_key' = '$OPENAI_API_KEY';"
+    echo "> CREATE MODEL cmgenai_openai_model INPUT(prompt STRING) OUTPUT(response STRING) COMMENT 'cmgenai-openai' WITH ('task' = 'text_generation','provider'='openai','openai.endpoint'='https://api.openai.com/v1/chat/completions','openai.api_key'='{{sessionconfig/sql.secrets.my_api_key}}','openai.system_prompt'='Summarize this customer feedback and suggest an actionable insight');"
+    echo "> Describe model cmgenai_openai_model;"
+    echo "> SELECT ID, TEXT, response FROM support_tickets_flink, LATERAL TABLE(ML_PREDICT('cmgenai_openai_model', TEXT));"
+elif [[ "$1" == "CP" ]] ; then
+    osascript 01_terminals.scpt $BASEDIR
+fi
 
 echo "Demo started"
 

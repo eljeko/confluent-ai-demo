@@ -66,8 +66,26 @@ All results will then produce into the topic `support-ticket-actions`. see Contr
 
 ![Control Center](img/c3.png)
 
+If you run Confluent Cloud and your Confluent Cloud Org is enabled for [Flink AI Models Early Access](https://staging-docs-independent.confluent.io/docs-cloud/PR/3796/current/flink/reference/statements/create-model.html#examples) then a Flink SQL Pool, a Table with 3 records were created.
+Open a Flink Shell, and try to use OpenAI direct in your stream processing:
+
+```bash
+confluent flink shell --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
+> select * from support_tickets_flink limit 3;
+> SET 'sql.secrets.my_api_key' = 'set your OPENAI KEY';
+> CREATE MODEL cmgenai_openai_model INPUT(prompt STRING) OUTPUT(response STRING) COMMENT 'cmgenai-openai' WITH ('task' = 'text_generation','provider'='openai','openai.endpoint'='https://api.openai.com/v1/chat/completions','openai.api_key'='{{sessionconfig/sql.secrets.my_api_key}}','openai.system_prompt'='Summarize this customer feedback and suggest an actionable insight');
+> describe model cmgenai_openai_model;
+# Start GENAI
+> SELECT ID, TEXT, response FROM support_tickets_flink, LATERAL TABLE(ML_PREDICT('cmgenai_openai_model', TEXT));"
+> quit
+```
+
+With Flink SQL AI we will have a four session terminal:
+![4 session terminal](img/4session.png)
+
 ## Stop Demo and Delete
 
+First exit all open session in iterm.
 Just run the next script. This will drop topics, stop local CP and destroy local CP:
 
 ```bash

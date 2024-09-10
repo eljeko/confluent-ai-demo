@@ -78,7 +78,7 @@ elif [[ "$1" == "CC" ]] ; then
     echo ""
     echo "Install Flink SQL Table..."
     # Install statements. Table, Model
-    confluent flink statement create cmtablesupportticketsflink --sql "create table support_tickets_flink (ID INT, TEXT STRING) WITH ('kafka.partitions'='1');" --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
+    confluent flink statement create cmtablesupportticketsflink --sql "create table support_tickets_flink (ID INT, TEXT STRING);" --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
     confluent flink statement describe cmtablesupportticketsflink --cloud gcp --region  europe-west1 --environment $ENVID
     confluent flink statement create cmtablesupportticketsflink-insert1 --sql "INSERT INTO support_tickets_flink SELECT 1 id, 'Really enjoyed the new update on the app! But I found it a bit difficult to navigate to my profile settings. Maybe it could be made more intuitive?' text;" --compute-pool $FPOOLID --database $CLUSTERID --environment $ENVID
     confluent flink statement describe cmtablesupportticketsflink-insert1 --cloud gcp --region  europe-west1 --environment $ENVID
